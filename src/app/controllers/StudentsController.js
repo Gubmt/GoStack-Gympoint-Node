@@ -1,16 +1,9 @@
 import * as Yup from 'yup';
 
 import Student from '../models/Student';
-import User from '../models/User';
 
 class StudentController {
   async store(req, res) {
-    const user = await User.findByPk(req.userId);
-
-    if (!user) {
-      return res.status(401).json({ error: 'Token not provided.' });
-    }
-
     const schema = Yup.object().shape({
       name: Yup.string().required(),
       email: Yup.string()
@@ -33,9 +26,11 @@ class StudentController {
       return res.status(400).json({ error: 'User already exists.' });
     }
 
-    const student = await Student.create(req.body);
+    const { id, name, email, age, weight, height } = await Student.create(
+      req.body
+    );
 
-    return res.json(student);
+    return res.json({ id, name, email, age, weight, height });
   }
 
   async update(req, res) {
@@ -53,17 +48,21 @@ class StudentController {
       return res.status(400).json({ error: 'Validation fails.' });
     }
 
-    const user = await User.findByPk(req.userId);
-
-    if (!user) {
-      return res.status(401).json({ error: 'Token not provided.' });
-    }
-
     const existsStudent = await Student.findByPk(req.params.id);
 
-    const student = await existsStudent.update(req.body);
+    const { id, name, email, age, weight, height } = await existsStudent.update(
+      req.body
+    );
 
-    return res.json(student);
+    return res.json({ id, name, email, age, weight, height });
+  }
+
+  async index(req, res) {
+    const students = await Student.findAll({
+      attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+    });
+
+    return res.json(students);
   }
 }
 
