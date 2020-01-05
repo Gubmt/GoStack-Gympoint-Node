@@ -8,7 +8,7 @@ class RegistrationMail {
   }
 
   async handle({ data }) {
-    const { student, plan, end_date, totalPrice } = data;
+    const { student, plan, end_date, price } = data;
 
     await Mail.sendMail({
       to: `${student.name} <${student.email}>`,
@@ -18,7 +18,7 @@ class RegistrationMail {
         student: student.name,
         plan: plan.title,
         end_date: format(parseISO(end_date), 'dd/MM/yy', { locale: pt }),
-        price: totalPrice,
+        price,
       },
     });
   }

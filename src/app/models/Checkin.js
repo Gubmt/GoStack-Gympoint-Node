@@ -1,4 +1,5 @@
-import { Model } from 'sequelize';
+import Sequelize, { Model } from 'sequelize';
+import { isAfter, isBefore } from 'date-fns';
 
 class Checkin extends Model {
   static init(sequelize) {

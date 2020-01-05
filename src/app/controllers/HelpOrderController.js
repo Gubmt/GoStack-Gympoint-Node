@@ -33,7 +33,7 @@ class HelpOrderController {
         answer: null,
       },
       order: [['createdAt', 'DESC']],
-      attributes: ['id', 'question', 'answer', 'answer_at'],
+      attributes: ['id', 'question', 'answer', 'answer_at', 'created_at'],
       include: [
         {
           model: Student,
@@ -57,7 +57,7 @@ class HelpOrderController {
 
     const help_order = await HelpOrder.findAll({
       where: { student_id: req.params.id },
-      attributes: ['id', 'question', 'answer', 'answer_at'],
+      attributes: ['id', 'question', 'answer', 'answer_at', 'created_at'],
       include: [
         {
           model: Student,

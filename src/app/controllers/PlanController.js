@@ -27,15 +27,28 @@ class PlanController {
   }
 
   async index(req, res) {
+    const { page } = req.query;
+
     const user = await User.findByPk(req.userId);
 
     if (!user) {
       return res.status(401).json({ error: 'Token was not provided.' });
     }
 
+    if (page === undefined) {
+      const plans = await Plan.findAll({
+        attributes: ['id', 'title', 'duration', 'price'],
+        order: ['duration'],
+      });
+
+      return res.json(plans);
+    }
+
     const plans = await Plan.findAll({
       attributes: ['id', 'title', 'duration', 'price'],
-      order: ['id'],
+      order: ['duration'],
+      limit: 5,
+      offset: (page - 1) * 5,
     });
 
     return res.json(plans);
@@ -57,6 +70,26 @@ class PlanController {
     const { id, title, duration, price } = await existPlans.update(req.body);
 
     return res.json({ id, title, duration, price });
+  }
+
+  async delete(req, res) {
+    const { page } = req.query;
+    const plan = await Plan.findByPk(req.params.id);
+
+    if (!plan) {
+      return res.status(400).json({ error: 'Plan not found' });
+    }
+
+    await plan.destroy({ where: { id: plan.id } });
+
+    const plans = await Plan.findAll({
+      attributes: ['id', 'title', 'duration', 'price'],
+      order: ['duration'],
+      limit: 5,
+      offset: (page - 1) * 5,
+    });
+
+    return res.json(plans);
   }
 }
 

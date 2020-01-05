@@ -15,7 +15,9 @@ const routes = new Router();
 
 routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
+
 routes.post('/students/:id/checkins', CheckinController.store);
+routes.get('/students/:id/checkins', CheckinController.index);
 
 routes.post('/students/:id/help-orders', HelpOrderController.store);
 routes.get('/students/:id/help-orders', HelpOrderController.index);
@@ -27,14 +29,17 @@ routes.put('/users', UserController.update);
 routes.post('/students', StudentsController.store);
 routes.put('/students/:id', StudentsController.update);
 routes.get('/students', StudentsController.index);
+routes.delete('/students/:id', StudentsController.delete);
 
 routes.post('/plans', PlanController.store);
 routes.put('/plans/:id', PlanController.update);
 routes.get('/plans', PlanController.index);
+routes.delete('/plans/:id', PlanController.delete);
 
 routes.post('/registrations/:id', RegistrationController.store);
 routes.put('/registrations/:id', RegistrationController.update);
 routes.get('/registrations', RegistrationController.index);
+routes.delete('/registrations/:id', RegistrationController.delete);
 
 routes.get('/help-orders', HelpAnswerController.index);
 routes.put('/help-orders/:id/answer', HelpAnswerController.update);

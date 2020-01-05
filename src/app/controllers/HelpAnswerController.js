@@ -8,6 +8,24 @@ import Queue from '../../lib/Queue';
 
 class HelpAnswerController {
   async index(req, res) {
+    const { page } = req.query;
+
+    if (page === undefined) {
+      const help_order = await HelpOrder.findAll({
+        where: { answer: null },
+        attributes: ['id', 'question', 'answer', 'answer_at'],
+        include: [
+          {
+            model: Student,
+            as: 'student',
+            attributes: ['id', 'name', 'email'],
+          },
+        ],
+      });
+
+      return res.json(help_order);
+    }
+
     const help_order = await HelpOrder.findAll({
       where: { answer: null },
       attributes: ['id', 'question', 'answer', 'answer_at'],
@@ -18,6 +36,8 @@ class HelpAnswerController {
           attributes: ['id', 'name', 'email'],
         },
       ],
+      limit: 5,
+      offset: (page - 1) * 5,
     });
 
     return res.json(help_order);
