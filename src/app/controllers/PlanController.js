@@ -27,7 +27,13 @@ class PlanController {
   }
 
   async index(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
+
+    const allPlans = await Plan.findAndCountAll();
+
+    const per_page = 5;
+    const total_list = allPlans.count;
+    const total_pages = total_list / per_page;
 
     const user = await User.findByPk(req.userId);
 
@@ -35,23 +41,27 @@ class PlanController {
       return res.status(401).json({ error: 'Token was not provided.' });
     }
 
-    if (page === undefined) {
+    /* if (page === undefined) {
       const plans = await Plan.findAll({
         attributes: ['id', 'title', 'duration', 'price'],
         order: ['duration'],
       });
 
       return res.json(plans);
-    }
+    } */
 
     const plans = await Plan.findAll({
       attributes: ['id', 'title', 'duration', 'price'],
       order: ['duration'],
-      limit: 5,
-      offset: (page - 1) * 5,
+      limit: per_page,
+      offset: (page - 1) * per_page,
     });
 
-    return res.json(plans);
+    return res.json({
+      total_list,
+      total_pages,
+      plans,
+    });
   }
 
   async update(req, res) {
@@ -73,7 +83,7 @@ class PlanController {
   }
 
   async delete(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
     const plan = await Plan.findByPk(req.params.id);
 
     if (!plan) {
@@ -82,14 +92,24 @@ class PlanController {
 
     await plan.destroy({ where: { id: plan.id } });
 
+    const allPlans = await Plan.findAndCountAll();
+
+    const per_page = 5;
+    const total_list = allPlans.count;
+    const total_pages = total_list / per_page;
+
     const plans = await Plan.findAll({
       attributes: ['id', 'title', 'duration', 'price'],
       order: ['duration'],
-      limit: 5,
-      offset: (page - 1) * 5,
+      limit: per_page,
+      offset: (page - 1) * per_page,
     });
 
-    return res.json(plans);
+    return res.json({
+      total_list,
+      total_pages,
+      plans,
+    });
   }
 }
 

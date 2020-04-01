@@ -24,7 +24,7 @@ class StudentController {
     });
 
     if (existsStudents) {
-      return res.status(400).json({ error: 'User already exists.' });
+      return res.status(400).json({ error: 'Email already exists.' });
     }
 
     const { id, name, email, age, weight, height } = await Student.create(
@@ -59,8 +59,14 @@ class StudentController {
   }
 
   async index(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
     const name = `${req.query.name}%`;
+
+    const allStudents = await Student.findAndCountAll();
+
+    const per_page = 5;
+    const total_list = allStudents.count;
+    const total_pages = total_list / per_page;
 
     const student = await Student.findOne({
       where: { name: { [Op.like]: name } },
@@ -75,23 +81,31 @@ class StudentController {
     )
       return res.json(student);
 
-    if (page === undefined) {
+    /* if (page === undefined) {
       const students = await Student.findAll({
         attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
         order: ['id'],
       });
 
-      return res.json(students);
-    }
+      return res.json({
+        total_list,
+        total_pages,
+        students,
+      });
+    } */
 
     const students = await Student.findAll({
       attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
-      limit: 5,
-      offset: (page - 1) * 5,
+      limit: per_page,
+      offset: (page - 1) * per_page,
       order: ['id'],
     });
 
-    return res.json(students);
+    return res.json({
+      total_list,
+      total_pages,
+      students,
+    });
   }
 
   async delete(req, res) {
@@ -105,14 +119,23 @@ class StudentController {
 
     await Student.destroy({ where: { id: student.id } });
 
-    const students = await Student.findAll({
+    const per_page = 5;
+
+    const students = await Student.findAndCountAll({
       attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
-      limit: 5,
-      offset: (page - 1) * 5,
+      limit: per_page,
+      offset: (page - 1) * per_page,
       order: ['id'],
     });
 
-    return res.json(students);
+    const total_list = students.count;
+    const total_pages = total_list / per_page;
+
+    return res.json({
+      total_list,
+      total_pages,
+      students,
+    });
   }
 }
 

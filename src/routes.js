@@ -8,6 +8,7 @@ import RegistrationController from './app/controllers/RegistrationController';
 import CheckinController from './app/controllers/CheckinController';
 import HelpOrderController from './app/controllers/HelpOrderController';
 import HelpAnswerController from './app/controllers/HelpAnswerController';
+import SelectStudentController from './app/controllers/SelectStudentController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -21,6 +22,8 @@ routes.get('/students/:id/checkins', CheckinController.index);
 
 routes.post('/students/:id/help-orders', HelpOrderController.store);
 routes.get('/students/:id/help-orders', HelpOrderController.index);
+
+routes.get('/students/registrations', SelectStudentController.index);
 
 routes.use(authMiddleware);
 

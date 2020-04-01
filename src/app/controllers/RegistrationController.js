@@ -69,9 +69,9 @@ class RegistrationController {
   }
 
   async index(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
 
-    if (page === undefined) {
+    /* if (page === undefined) {
       const registrations = await Registration.findAll({
         attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
         include: [
@@ -90,7 +90,13 @@ class RegistrationController {
       });
 
       return res.json(registrations);
-    }
+    } */
+
+    const allRegistrations = await Registration.findAndCountAll();
+
+    const per_page = 5;
+    const total_list = allRegistrations.count;
+    const total_pages = total_list / per_page;
 
     const registrations = await Registration.findAll({
       attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
@@ -106,11 +112,15 @@ class RegistrationController {
           attributes: ['id', 'title', 'price'],
         },
       ],
-      limit: 5,
-      offset: (page - 1) * 5,
+      limit: per_page,
+      offset: (page - 1) * per_page,
       order: ['id'],
     });
-    return res.json(registrations);
+    return res.json({
+      total_list,
+      total_pages,
+      registrations,
+    });
   }
 
   async update(req, res) {
@@ -165,7 +175,7 @@ class RegistrationController {
   }
 
   async delete(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
     const registration = await Registration.findByPk(req.params.id);
 
     if (!registration) {
@@ -173,6 +183,12 @@ class RegistrationController {
     }
 
     await registration.destroy({ where: { id: registration.id } });
+
+    const allRegistrations = await Plan.findAndCountAll();
+
+    const per_page = 5;
+    const total_list = allRegistrations.count;
+    const total_pages = total_list / per_page;
 
     const registrations = await Registration.findAll({
       attributes: ['id', 'start_date', 'end_date', 'price'],
@@ -189,11 +205,15 @@ class RegistrationController {
         },
       ],
       order: ['id'],
-      limit: 5,
-      offset: (page - 1) * 5,
+      limit: per_page,
+      offset: (page - 1) * per_page,
     });
 
-    return res.json(registrations);
+    return res.json({
+      total_list,
+      total_pages,
+      registrations,
+    });
   }
 }
 

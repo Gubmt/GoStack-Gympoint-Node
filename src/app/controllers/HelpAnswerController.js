@@ -8,23 +8,15 @@ import Queue from '../../lib/Queue';
 
 class HelpAnswerController {
   async index(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
 
-    if (page === undefined) {
-      const help_order = await HelpOrder.findAll({
-        where: { answer: null },
-        attributes: ['id', 'question', 'answer', 'answer_at'],
-        include: [
-          {
-            model: Student,
-            as: 'student',
-            attributes: ['id', 'name', 'email'],
-          },
-        ],
-      });
+    const allHelps = await HelpOrder.findAndCountAll({
+      where: { answer: null },
+    });
 
-      return res.json(help_order);
-    }
+    const per_page = 5;
+    const total_list = allHelps.count;
+    const total_pages = total_list / per_page;
 
     const help_order = await HelpOrder.findAll({
       where: { answer: null },
@@ -36,11 +28,15 @@ class HelpAnswerController {
           attributes: ['id', 'name', 'email'],
         },
       ],
-      limit: 5,
-      offset: (page - 1) * 5,
+      limit: per_page,
+      offset: (page - 1) * per_page,
     });
 
-    return res.json(help_order);
+    return res.json({
+      total_list,
+      total_pages,
+      help_order,
+    });
   }
 
   async update(req, res) {
